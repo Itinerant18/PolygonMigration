@@ -2,13 +2,13 @@
 
 ## Overview
 
-PolygonMigration is a Django-based web application designed to facilitate the migration of programming problems and their test cases from the [Polygon](https://polygon.codeforces.com/) platform to a local database and Azure Blob Storage. It provides a user-friendly interface for staff users to fetch, review, tag, and migrate problems, as well as manage test cases and metadata.
+PolygonMigration is a Django-based web application designed to facilitate the migration of programming problems and their test cases from the [Polygon](https://polygon.codeforces.com/) platform to a local database and Google Drive. It provides a user-friendly interface for staff users to fetch, review, tag, and migrate problems, as well as manage test cases and metadata.
 
 ## Features
 
 - **Polygon Integration:** Fetch problems and test cases directly from Polygon using API keys.
 - **Database Migration:** Store problem statements, metadata, and test cases in a PostgreSQL database.
-- **Azure Blob Storage:** Upload test cases to Azure Blob Storage for scalable storage and retrieval.
+- **Google Drive Storage:** Upload test cases to a shared Google Drive folder for storage and retrieval.
 - **Tagging & Metadata:** Add, search, and manage tags and difficulty levels for each problem.
 - **Admin Interface:** Manage users, problems, tags, and test cases via Django admin.
 - **Custom User Model:** Email-based authentication with extended user profile fields.
@@ -20,16 +20,29 @@ PolygonMigration is a Django-based web application designed to facilitate the mi
 2. **Fetch Problem:** Enter a Polygon Problem ID to fetch problem details and test cases.
 3. **Review & Tag:** Review the fetched problem, select difficulty, and add tags.
 4. **Migrate to Database:** Save the problem and metadata to the local database.
-5. **Migrate Test Cases:** Optionally, migrate test cases to the database and/or Azure Blob Storage.
+5. **Migrate Test Cases:** Optionally, migrate test cases to the database and/or Google Drive.
 6. **View & Manage:** Use the admin interface for advanced management of problems, tags, and users.
+
+## Google Drive Setup
+
+1. Create a Google Cloud service account and download its JSON key.
+2. Create a Google Drive folder for test-case uploads.
+3. Share the folder with the service-account email (Editor access), otherwise uploads fail.
+4. Set in `.env`:
+
+```env
+GOOGLE_DRIVE_CREDENTIALS_FILE=credentials/google-drive-service-account.json
+GOOGLE_DRIVE_FOLDER_ID=your_folder_id
+GOOGLE_DRIVE_UPLOAD_ENABLED=True
+```
 
 ## Setup Instructions
 
 ### 1. Prerequisites
 
 - Python 3.8+
-- PostgreSQL database
-- [Azure account](https://portal.azure.com/) with Blob Storage and an AAD application
+- PostgreSQL database (runs locally through Docker)
+- Google Drive folder shared with a service account
 - Polygon API credentials
 
 ### 2. Clone the Repository
@@ -75,13 +88,10 @@ DB_PORT=5432
 POLYGON_API_KEY=your_polygon_api_key
 POLYGON_API_SECRET=your_polygon_api_secret
 
-# Azure Blob Storage
-AZURE_STORAGE_ACCOUNT_URL=https://<your-storage-account>.blob.core.windows.net/
-AZURE_TENANT_ID=your-tenant-id
-AZURE_CLIENT_ID=your-client-id
-AZURE_USERNAME=your-azure-username
-AZURE_PASSWORD=your-azure-password
-AZURE_CONTAINER_NAME=your-container-name
+# Google Drive
+GOOGLE_DRIVE_CREDENTIALS_FILE=credentials/google-drive-service-account.json
+GOOGLE_DRIVE_FOLDER_ID=your_folder_id
+GOOGLE_DRIVE_UPLOAD_ENABLED=True
 
 # Redis (optional, for caching)
 REDIS_HOST=localhost
@@ -161,7 +171,7 @@ Access the app at [http://localhost:8000/](http://localhost:8000/)
   - Fetch a problem by Polygon ID.
   - Select difficulty and tags.
   - Migrate to the database.
-  - Migrate test cases to the database and/or Azure.
+  - Migrate test cases to the database and/or Google Drive.
 
 ## Environment Variables Reference
 
@@ -177,12 +187,9 @@ Access the app at [http://localhost:8000/](http://localhost:8000/)
 | DB_PORT                   | PostgreSQL port                             |
 | POLYGON_API_KEY           | Polygon API key                             |
 | POLYGON_API_SECRET        | Polygon API secret                          |
-| AZURE_STORAGE_ACCOUNT_URL | Azure Blob Storage account URL              |
-| AZURE_TENANT_ID           | Azure AD tenant ID                          |
-| AZURE_CLIENT_ID           | Azure AD application client ID              |
-| AZURE_USERNAME            | Azure username                              |
-| AZURE_PASSWORD            | Azure password                              |
-| AZURE_CONTAINER_NAME      | Azure Blob container name                   |
+| GOOGLE_DRIVE_CREDENTIALS_FILE | Path to Google service-account JSON     |
+| GOOGLE_DRIVE_FOLDER_ID    | Google Drive folder ID                      |
+| GOOGLE_DRIVE_UPLOAD_ENABLED | Enable Drive uploads (True/False)         |
 | REDIS_HOST                | Redis host (optional)                       |
 | REDIS_PORT                | Redis port (optional)                       |
 | REDIS_PASSWORD            | Redis password (optional)                   |
@@ -201,4 +208,5 @@ PolygonMigration/
 ├── manage.py         # Django management script
 ├── PolygonMigration/ # Project settings and URLs
 ```
+
 # PolygonMigration
